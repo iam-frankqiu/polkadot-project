@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useEffect, useReducer } from "react";
 import {
   Table,
@@ -11,23 +12,6 @@ import {
 import { useSubstrate } from "../contexts/substrateContext";
 
 const UPDATE_DATA = "update_data";
-
-type headerType = {
-  hash: string;
-  number: string;
-};
-
-type block = {
-  number: string;
-  hash: string;
-};
-
-type blockListType = block[];
-
-type actionType = {
-  type: typeof UPDATE_DATA
-  data: block;
-};
 
 const reducer = (state: blockListType, action: actionType): blockListType => {
   switch (action.type) {
@@ -48,11 +32,9 @@ const RecentBlocks = () => {
   useEffect(() => {
     const init = async () => {
       if (api) {
-        // @ts-ignore
         await api.isReady;
-        // @ts-ignore
-        const unsubHeads = await api.rpc.chain.subscribeNewHeads(
-          (header: headerType) => {
+        await api.rpc.chain.subscribeNewHeads(
+          header => {
             const { number, hash } = header;
             const numberStr = number.toString()
             const hashStr = hash.toString()
@@ -63,6 +45,7 @@ const RecentBlocks = () => {
     };
     init();
   }, [api]);
+  
   return (
     <TableContainer>
       <Table variant="simple">
