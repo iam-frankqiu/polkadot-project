@@ -14,12 +14,14 @@ import {
   web3Enable,
   web3AccountsSubscribe,
 } from "@polkadot/extension-dapp";
+import keyring from "@polkadot/ui-keyring";
+import { cryptoWaitReady } from "@polkadot/util-crypto";
 import { getAccount } from "../utils";
 import { useSubstrate } from "../contexts/substrateContext";
-import { APP_NAME } from "../config";
+import { APP_NAME, SS58_FORMAT, KEYRING_TYPE } from "../config";
 
 const Accounts = () => {
-  // store address and name 
+  // store address and name
   const [addressList, setAddressList] = useState<addressType>([]);
   // store address, name , and balance
   const [accountList, setAccountList] = useState<accountType>([]);
@@ -28,8 +30,18 @@ const Accounts = () => {
   useEffect(() => {
     const fetchAddressList = async () => {
       await web3Enable(APP_NAME);
-      const allAccounts = await web3Accounts();
+      let allAccounts = await web3Accounts();
+      allAccounts = allAccounts.map(({ address, meta }) => ({
+        address,
+        meta: { ...meta, name: meta.name },
+      }));
       setAddressList(getAccount(allAccounts));
+      await cryptoWaitReady();
+      // it will throw an Error: Unable to initialise options more than once
+      try {
+        keyring.loadAll({ ss58Format: SS58_FORMAT, type: KEYRING_TYPE }, allAccounts);
+      } catch (error) {
+      }
       // subscribe the change of the wallets
       await web3AccountsSubscribe((accounts) => {
         setAddressList(getAccount(accounts));
@@ -45,7 +57,7 @@ const Accounts = () => {
         // query the balance of multiple addresses
         await api.query.system.account.multi(
           addressList.map((item) => item.address),
-          balances => {
+          (balances) => {
             const balancesArr = balances.map(({ data: { free } }) =>
               free.toString()
             );
@@ -66,7 +78,7 @@ const Accounts = () => {
     <div>
       <h1 className="h1">My Accounts</h1>
       <TableContainer className="center">
-        <Table variant="simple"  width='1000px'>
+        <Table variant="simple" width="1000px" className="border-width">
           <Thead>
             <Tr>
               <Th>Name</Th>
@@ -76,8 +88,10 @@ const Accounts = () => {
           </Thead>
           <Tbody>
             {accountList.length === 0 && (
-              <Tr >
-                <Td className="empty" colSpan={3}>No Data Available</Td>
+              <Tr>
+                <Td className="empty" colSpan={3}>
+                  No Data Available
+                </Td>
               </Tr>
             )}
 

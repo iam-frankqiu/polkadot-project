@@ -11,3 +11,6 @@
     height: 100px;
     text-align: center!important;
 }
+.border-width {
+    border-width: 2px;
+}

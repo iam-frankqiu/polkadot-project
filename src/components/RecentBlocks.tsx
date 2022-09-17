@@ -55,10 +55,10 @@ const RecentBlocks = () => {
     <div>
       <h1 className="h1">Recent Blocks</h1>
       <TableContainer className="center">
-        <Table variant="simple"  width={'1000px'}>
+        <Table  width={'1000px'} className="border-width">
           <Thead>
             <Tr>
-              <Th>Name</Th>
+              <Th>Number</Th>
               <Th>Hash</Th>
             </Tr>
           </Thead>
