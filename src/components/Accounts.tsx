@@ -19,31 +19,33 @@ import { useSubstrate } from "../contexts/substrateContext";
 import { APP_NAME } from "../config";
 
 const Accounts = () => {
+  // store address and name 
   const [addressList, setAddressList] = useState<addressType>([]);
+  // store address, name , and balance
   const [accountList, setAccountList] = useState<accountType>([]);
   const { api } = useSubstrate();
 
   useEffect(() => {
-    const init = async () => {
+    const fetchAddressList = async () => {
       await web3Enable(APP_NAME);
       const allAccounts = await web3Accounts();
       setAddressList(getAccount(allAccounts));
+      // subscribe the change of the wallets
       await web3AccountsSubscribe((accounts) => {
         setAddressList(getAccount(accounts));
       });
     };
-    init();
+    fetchAddressList();
   }, []);
 
   useEffect(() => {
-    const init = async () => {
+    const fetchBalanceList = async () => {
       if (api) {
-        console.log('accounts')
         await api.isReady;
+        // query the balance of multiple addresses
         await api.query.system.account.multi(
           addressList.map((item) => item.address),
           balances => {
-            console.log('balance')
             const balancesArr = balances.map(({ data: { free } }) =>
               free.toString()
             );
@@ -57,13 +59,14 @@ const Accounts = () => {
         );
       }
     };
-    init();
+    fetchBalanceList();
   }, [addressList, api]);
 
   return (
     <div>
-      <TableContainer>
-        <Table variant="simple">
+      <h1 className="h1">My Accounts</h1>
+      <TableContainer className="center">
+        <Table variant="simple"  width='1000px'>
           <Thead>
             <Tr>
               <Th>Name</Th>
@@ -73,8 +76,8 @@ const Accounts = () => {
           </Thead>
           <Tbody>
             {accountList.length === 0 && (
-              <Tr>
-                <Td colSpan={3}>No Data Available</Td>
+              <Tr >
+                <Td className="empty" colSpan={3}>No Data Available</Td>
               </Tr>
             )}
 
@@ -83,7 +86,7 @@ const Accounts = () => {
                 <Tr key={item.address}>
                   <Td>{item.name}</Td>
                   <Td>{item.address}</Td>
-                  <Td>{item.balance}</Td>
+                  <Td>{item.balance} DOL</Td>
                 </Tr>
               ))}
           </Tbody>

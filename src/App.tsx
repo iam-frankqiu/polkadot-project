@@ -1,8 +1,7 @@
 import * as React from "react";
 import { ChakraProvider, theme } from "@chakra-ui/react";
 import { SubstrateContextProvider } from "./contexts/substrateContext";
-
-import Home from "./pages/home";
+import Home from "./pages/Home";
 
 export const App = () => {
   return (
