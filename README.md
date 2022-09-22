@@ -1,4 +1,4 @@
-# manta-project
+# polkadot-project
 
 ## Available Scripts
 
